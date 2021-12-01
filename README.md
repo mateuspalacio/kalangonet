@@ -23,8 +23,7 @@ The following commands are available:
   * `user list all`
   * `user remove <id>` and `user remove <email>`.
 * For rules:
-  * `rule add <ip_address> <action>` with `action` being ACCEPT or DENY.
+  * `rule add <ip_address> <action>` with `action` being either ACCEPT or DENY.
   * `rule list all`
   * `rule delete <id>`
 
-Due to unknown reasons, sometimes the server will return the wrong message after a command is executed, even though everything went fine. This will tested in the future for an accurate fix, but nothing has been found so far to make it accurate.

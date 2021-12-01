@@ -28,6 +28,7 @@ class Handler(Thread):
           content = file.read()
           file.close()
           db = json.loads(content)
+          found = False
           user = User(request['data']['name'], request['data']['email'], request['data']['password'],
                       request['data']['id'])
           toCheck = request['data']['password']
@@ -36,13 +37,14 @@ class Handler(Thread):
               pw = db['users'][i]['password']
               check = bcrypt.checkpw(toCheck.encode('utf8'), pw.encode('utf8'))
               if check is True:
+                found = True
                 json_string = f'Login_Success - Login for user {user.name}, successful. Enjoy KalangoNet'
                 self.conn.sendall(json_string.encode('utf8'))
               else:
                 json_string = f'Login_Fail - Tried to login user {user.name}, but it ' \
                               f'failed. Please verify data and try again'
                 self.conn.sendall(json_string.encode('utf8'))
-          else:
+          if not found:
             json_string = f'Login_Fail - Tried to login user {user.name}, but it ' \
                           f'failed. Please verify data and try again'
             self.conn.sendall(json_string.encode('utf8'))
