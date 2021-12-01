@@ -8,14 +8,14 @@ class User:
   def __init__(self, name, email, password, guid=uuid.uuid4()):
     self.name = name
     self.email = email
-    self.password = bcrypt.hashpw(password.encode('utf8'), bcrypt.gensalt())
+    self.password = password#bcrypt.hashpw(password.encode('utf8'), bcrypt.gensalt())
     self.guid = guid
 
   def verifyPassword(self, password):
     return bcrypt.checkpw(password.encode('utf8'), self.password)
 
   def map(self):
-    map = {'name': self.name, 'email': self.email, 'password': self.password.decode('utf8'), 'id': str(self.guid)}
+    map = {'name': self.name, 'email': self.email, 'password': self.password, 'id': str(self.guid)}
     return map
 
 class Rule:

@@ -31,6 +31,8 @@ class KalangoClient(Thread):
             print(decode)
           else:
             print(decode)
+        elif cmd.startswith('user') and aux[1].startswith('login') and loggedIn is True:
+          print("Already logged in. Please restart app to login with different account. Use the command 'quit'")
         elif cmd.startswith('user') and aux[1] != "login":
           if aux[1].startswith('create') and len(aux) == 5:
             usuario = User(aux[2], aux[3], aux[4])

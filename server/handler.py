@@ -1,6 +1,8 @@
 import json
 import uuid
 
+import bcrypt
+
 from models import User, Rule, UserNoEncode
 from threading import Thread
 from collections import Counter
@@ -26,14 +28,20 @@ class Handler(Thread):
           content = file.read()
           file.close()
           db = json.loads(content)
-          user = User(request['data']['name'], request['data']['email'], request['data']['password'])
+          user = User(request['data']['name'], request['data']['email'], request['data']['password'],
+                      request['data']['id'])
+          toCheck = request['data']['password']
           for i in range(0, len(db['users'])):
             if db['users'][i]['name'] == user.name and db['users'][i]['email'] == user.email:
-              user2 = UserNoEncode(db['users'][i]['name'], db['users'][i]['email'], '1234steve')
-              print(user2.verifyPassword(db['users'][i]['password']))
-              json_string = f'Login_Success - Login for user {user.name}, successful. Enjoy KalangoNet'
-              self.conn.sendall(json_string.encode('utf8'))
-              print("we gucci")
+              pw = db['users'][i]['password']
+              check = bcrypt.checkpw(toCheck.encode('utf8'), pw.encode('utf8'))
+              if check is True:
+                json_string = f'Login_Success - Login for user {user.name}, successful. Enjoy KalangoNet'
+                self.conn.sendall(json_string.encode('utf8'))
+              else:
+                json_string = f'Login_Fail - Tried to login user {user.name}, but it ' \
+                              f'failed. Please verify data and try again'
+                self.conn.sendall(json_string.encode('utf8'))
           else:
             json_string = f'Login_Fail - Tried to login user {user.name}, but it ' \
                           f'failed. Please verify data and try again'
@@ -107,15 +115,18 @@ class Handler(Thread):
           db = json.loads(content)
 
           rule = Rule(request['data']['ip'], request['data']['action'], request['data']['id'])
-
-          db['rules'].append(rule.map())
-
-          content = json.dumps(db)
-          file = open('database.json', 'w')
-          file.write(content)
-          file.close()
-          json_string = f'Created Rule {rule.action} for IP {rule.ip} --  Id {rule.guid}'
-          self.conn.sendall(json_string.encode('utf8'))
+          if "accept" != request['data']['action'].lower() and "deny" != request['data']['action'].lower():
+            json_string = f"Couldn't create rule with ACTION {request['data']['action'].lower()}, " \
+                          f"only accepted ACTIONS are ACCEPT and DENY"
+            self.conn.sendall(json_string.encode('utf8'))
+          else:
+            db['rules'].append(rule.map())
+            content = json.dumps(db)
+            file = open('database.json', 'w')
+            file.write(content)
+            file.close()
+            json_string = f'Created Rule {rule.action} for IP {rule.ip} --  Id {rule.guid}'
+            self.conn.sendall(json_string.encode('utf8'))
 
         elif request['action'] == 'list_rule':
           rules = []

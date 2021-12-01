@@ -26,10 +26,7 @@ class UserNoEncode:
     self.guid = guid
 
   def verifyPassword(self, password):
-    print('self pw', self.password)
-    print('pw', password.encode('utf8'))
-    print(bcrypt.checkpw(password.encode('utf8'), self.password))
-    return bcrypt.checkpw(self.password, password.encode('utf8'))
+    return bcrypt.checkpw(password.encode('utf8'), self.password)
 
   def map(self):
     map = {'name': self.name, 'email': self.email, 'password': self.password.decode('utf8'), 'id': str(self.guid)}
